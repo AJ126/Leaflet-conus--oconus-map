@@ -1,0 +1,40 @@
+<main class="page">
+  <header class="page-header">
+    <div><h1>Location Map</h1><p>Explore map boundaries and add locations.</p></div>
+    <div class="mode-switch" role="group" aria-label="Map mode">
+      <button type="button" [class.active]="mode === 'CONUS'" (click)="setMode('CONUS')">CONUS</button>
+      <button type="button" [class.active]="mode === 'OCONUS'" (click)="setMode('OCONUS')">OCONUS / World</button>
+    </div>
+  </header>
+  <div *ngIf="message" class="notice" [class.error]="messageType === 'error'" [class.success]="messageType === 'success'">{{ message }}</div>
+  <div class="workspace">
+    <aside class="sidebar">
+      <h2>Add location</h2>
+      <p class="muted">{{ selectedPlace ? 'Selected: ' + selectedPlace : 'Choose a country on the map, or add a world location.' }}</p>
+      <div class="toggle-row"><button type="button" [class.active]="!useCoordinates" (click)="useCoordinates = false">Search by name</button><button type="button" [class.active]="useCoordinates" (click)="useCoordinates = true">Use coordinates</button></div>
+      <form (ngSubmit)="addLocation()">
+        <label *ngIf="!useCoordinates">Location name <span class="required">*</span><input name="locationName" [(ngModel)]="locationName" placeholder="e.g. New York" /></label>
+        <ng-container *ngIf="useCoordinates">
+          <label>Latitude <span class="required">*</span><input name="latitude" type="number" step="any" [(ngModel)]="latitude" placeholder="40.7128" /></label>
+          <label>Longitude <span class="required">*</span><input name="longitude" type="number" step="any" [(ngModel)]="longitude" placeholder="-74.0060" /></label>
+          <label>Location name <input name="coordName" [(ngModel)]="locationName" placeholder="Optional; looked up if blank" /></label>
+        </ng-container>
+        <label>Area accommodations<input name="accommodations" [(ngModel)]="areaAccomodations" /></label>
+        <label>Sight seeing<input name="sightSeeing" [(ngModel)]="sightSeeing" /></label>
+        <label>Location benefits<input name="locationBenefits" [(ngModel)]="locationBenefits" /></label>
+        <button class="primary" type="submit">Add location marker</button>
+      </form>
+      <div class="locations-heading"><h2>Saved markers</h2><button type="button" class="text-button" *ngIf="locations.length" (click)="exportLocations()">Export JSON</button></div>
+      <p class="muted" *ngIf="!locations.length">No locations added yet.</p>
+      <article class="location-card" *ngFor="let location of locations; let i = index">
+        <div><strong>{{ location.locationName }}</strong><small>{{ location.latitude }}, {{ location.longitude }}</small></div>
+        <button type="button" class="remove" (click)="removeLocation(i)" aria-label="Remove location">×</button>
+      </article>
+    </aside>
+    <section class="map-panel">
+      <div class="map-toolbar"><span>{{ mode === 'CONUS' ? 'United States view' : 'World view' }}</span><button type="button" *ngIf="mode === 'CONUS' || selectedPlace" (click)="goBackToWorldMap()">Back to world</button></div>
+      <div id="map" aria-label="Interactive world map"></div>
+      <p class="map-hint">Select a country to zoom in. OpenStreetMap tiles require an internet connection.</p>
+    </section>
+  </div>
+</main>
